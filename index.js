@@ -36,12 +36,28 @@ async function run(){
     await client.connect();
     const partsCollection=client.db('Eauto').collection('products')
     const orderCollection=client.db('Eauto').collection('orders')
+    const usersCollection=client.db('Eauto').collection('users')
     // Parts API
     app.get('/parts',async(req,res)=>{
         const query={}
         const cursor= partsCollection.find(query)
         const parts=await cursor.toArray()
         res.send(parts)
+    })
+
+    // User API
+    app.put('/user/:email',async(req,res)=>{
+      const email=req.params.email;
+      const user=req.body
+      const filter={email:email}
+      const option={upsert:true}
+        const updateDoc={
+            $set:user
+               
+    }
+    const result=await usersCollection.updateOne(filter,updateDoc,option)
+       res.send(result);
+
     })
     // Parts API By Id
     app.get('/parts/:id',async(req,res)=>{
