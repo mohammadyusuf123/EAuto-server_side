@@ -24,7 +24,6 @@ function verifyJWT(req,res,next){
      req.decoded=decoded
      next()
     })
-    console.log('insideJWT',auth)
     
   }
 
