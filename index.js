@@ -45,6 +45,13 @@ async function run(){
         res.send(parts)
     })
 
+// Al user API
+app.get('/user',async(req,res)=>{
+  const users=await usersCollection.find().toArray();
+  res.send(users)
+
+})
+
     // User API
     app.put('/user/:email',async(req,res)=>{
       const email=req.params.email;
@@ -56,7 +63,10 @@ async function run(){
                
     }
     const result=await usersCollection.updateOne(filter,updateDoc,option)
-       res.send(result);
+    const accessKey=jwt.sign(user,process.env.ACCESS_KEY,{
+      expiresIn:'1d'
+    })
+       res.send({result,accessKey});
 
     })
     // Parts API By Id
@@ -92,13 +102,13 @@ async function run(){
   })
 
   //Auth
-app.post('/login',async(req,res)=>{
-    const user=req.body
-    const accessKey=jwt.sign(user,process.env.ACCESS_KEY,{
-      expiresIn:'1d'
-    })
-    res.send(accessKey)
-  })
+// app.post('/login',async(req,res)=>{
+//     const user=req.body
+//     const accessKey=jwt.sign(user,process.env.ACCESS_KEY,{
+//       expiresIn:'1d'
+//     })
+//     res.send(accessKey)
+//   })
 
    }
    finally{
