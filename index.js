@@ -105,6 +105,8 @@ const result=await usersCollection.updateOne(filter,updateDoc)
 
     })
 
+
+
     //Order Collection API
 
  app.get('/order/:email', verifyJWT,async(req,res)=>{
@@ -136,6 +138,15 @@ const result=await usersCollection.updateOne(filter,updateDoc)
     const user=req.body
     const result= await usersInfoCollection.insertOne(user)
     res.send(result)
+  })
+
+
+  // Delete Order
+  app.delete('/order/:id',async(req,res)=>{
+    const id=req.params.id
+    const query={_id:ObjectId(id)}
+    const order=await orderCollection.deleteOne(query)
+    res.send(order)
   })
 
   //Auth
