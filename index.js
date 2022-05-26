@@ -46,7 +46,7 @@ async function run(){
     })
 
 // Al user API
-app.get('/user',async(req,res)=>{
+app.get('/user',verifyJWT,async(req,res)=>{
   const users=await usersCollection.find().toArray();
   res.send(users)
 
