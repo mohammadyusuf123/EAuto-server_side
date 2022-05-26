@@ -37,6 +37,7 @@ async function run(){
     const partsCollection=client.db('Eauto').collection('products')
     const orderCollection=client.db('Eauto').collection('orders')
     const usersCollection=client.db('Eauto').collection('users')
+    const usersInfoCollection=client.db('Eauto').collection('usersInfo')
     // Parts API
     app.get('/parts',async(req,res)=>{
         const query={}
@@ -106,9 +107,9 @@ const result=await usersCollection.updateOne(filter,updateDoc)
 
     //Order Collection API
 
- app.get('/order', verifyJWT,async(req,res)=>{
+ app.get('/order/:email', verifyJWT,async(req,res)=>{
     const decodedEmail=req.decoded.email
-     const email=req.query.email
+     const email=req.params.email
      if(email===decodedEmail){
         const query={email:email}
         const cursor=orderCollection.find(query)
@@ -120,10 +121,20 @@ const result=await usersCollection.updateOne(filter,updateDoc)
      }
     
  })
+ app.get('/order',async(req,res)=>{
+   const order=await orderCollection.find().toArray()
+   res.send(order)
+ })
 
  app.post('/order',async(req,res)=>{
     const order=req.body
     const result= await orderCollection.insertOne(order)
+    res.send(result)
+  })
+
+  app.post('/userInfo',async(req,res)=>{
+    const user=req.body
+    const result= await usersInfoCollection.insertOne(user)
     res.send(result)
   })
 
