@@ -5,6 +5,7 @@ const port=process.env.PORT||2000
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const stripe = require('stripe')(process.env.STRIPE_KEY);
 
 //middleware
 app.use(cors())
@@ -38,12 +39,18 @@ async function run(){
     const orderCollection=client.db('Eauto').collection('orders')
     const usersCollection=client.db('Eauto').collection('users')
     const usersInfoCollection=client.db('Eauto').collection('usersInfo')
+    const paymentsCollection=client.db('Eauto').collection('payments')
     // Parts API
     app.get('/parts',async(req,res)=>{
         const query={}
         const cursor= partsCollection.find(query)
         const parts=await cursor.toArray()
         res.send(parts)
+    })
+    app.post('/parts',async(req,res)=>{
+        const review=req.body
+        const result= await partsCollection.insertOne(review)
+        res.send(result)
     })
 
 // Al user API
@@ -103,6 +110,41 @@ const result=await usersCollection.updateOne(filter,updateDoc)
         const singleParts=await partsCollection .findOne(query)
         res.send( singleParts)
 
+    })
+    app.get('/payment/:id',async(req,res)=>{
+        const id=req.params.id
+        const query={_id:ObjectId(id)}
+        const singleParts=await partsCollection.findOne(query)
+        res.send( singleParts)
+
+    })
+    app.patch('/payment/:id',async(req,res)=>{
+        const id=req.params.id
+        const payment=req.body
+        const filter={_id:ObjectId(id)}
+        const updateDoc={
+          $set:{
+            paid:true,
+            transactionId:payment. transactionId
+          }
+        }
+        const updateBooking=await orderCollection.updateOne(filter,updateDoc)
+       const result=await paymentsCollection.insertOne(payment)
+      res.send( updateDoc)
+
+      })
+
+
+    app.post('/create-payment-intent',verifyJWT,async(req,res)=>{
+      const order=req.body
+      const price=order.price
+      const amount=price*100
+      const paymentIntent=await stripe.paymentIntents.create({
+       amount:amount,
+       currency:'usd',
+       payment_method_types:['card']
+      })
+      res.send({clientSecret:paymentIntent.client_secret})
     })
 
 
